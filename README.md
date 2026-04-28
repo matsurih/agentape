@@ -138,18 +138,18 @@ By default Agent VCR uses **deterministic matching**:
 - **MCP tool call**: tool name + `sha256(deeply-sorted input JSON)` hash.
 - **MCP JSON-RPC**: method name + `sha256(deeply-sorted params)` hash.
 
-Headers are not part of the match key by default — auth headers vary across environments. Custom matchers are not yet exposed but the design has a hook for it (see Roadmap).
+Headers are not part of the match key by default — auth headers vary across environments.
 
 ## MCP record / replay
 
-Add `agent-vcr mcp-proxy` in your MCP client config in place of the raw command:
+Add `agent-vcr mcp-proxy` in your MCP client config in place of the raw server command:
 
 ```jsonc
 {
   "mcpServers": {
-    "fake-saas": {
+    "my-server": {
       "command": "agent-vcr",
-      "args": ["mcp-proxy", "--", "node", "fake-saas/src/server.js"]
+      "args": ["mcp-proxy", "--", "node", "path/to/your/mcp-server.js"]
     }
   }
 }
@@ -158,30 +158,6 @@ Add `agent-vcr mcp-proxy` in your MCP client config in place of the raw command:
 In **record** mode the proxy spawns the wrapped server and copies stdio both ways while sniffing JSON-RPC pairs.
 
 In **replay** mode the proxy ignores the wrapped command entirely and answers JSON-RPC requests from the cassette.
-
-Try the bundled demo:
-
-```bash
-npm run build
-
-# record
-npx agent-vcr record \
-  --cassette cassettes/fake-saas.json \
-  -- node examples/mcp-fake-saas/agent.mjs \
-     -- npx agent-vcr mcp-proxy -- node fake-saas/src/server.js
-
-# replay (real server is never spawned)
-npx agent-vcr replay \
-  --cassette cassettes/fake-saas.json \
-  -- node examples/mcp-fake-saas/agent.mjs \
-     -- npx agent-vcr mcp-proxy -- /bin/false
-```
-
-## Fake SaaS World demo
-
-[`fake-saas/`](./fake-saas) is a tiny scripted MCP-style stdio server we ship as a demo fixture. It serves four tools backed by JSON files: `gmail.search`, `crm.searchDeals`, `invoice.listUnpaid`, `calendar.listEvents`.
-
-Run [`examples/mcp-fake-saas/agent.mjs`](./examples/mcp-fake-saas/agent.mjs) for a tiny scripted "agent" that exercises the tools. See its [README](./examples/mcp-fake-saas/README.md) for the full record / replay walkthrough.
 
 ## GitHub Actions
 
@@ -200,29 +176,6 @@ Cassettes are committed to your repo, so we redact aggressively on save:
 Redactions appear as the literal string `[REDACTED]`.
 
 > Even with redaction, **always review your cassette before committing it**. Agent VCR can't tell when a payload contains a customer's PII or a leaked secret in a non-standard field name.
-
-## Non-goals
-
-- ❌ Hosted SaaS / cloud cassette storage
-- ❌ User accounts, billing, dashboards
-- ❌ Replacement for LangSmith / Langfuse observability
-- ❌ Generic LLM tracing
-- ❌ Real Gmail / Slack / GitHub integrations
-- ❌ Browser-side recording (Node.js only for now)
-- ❌ HTTPS MITM at the OS proxy layer
-
-## Roadmap
-
-- Hosted cassette registry
-- Team sharing & private run share
-- CI dashboard
-- MCP HTTP / SSE transport support
-- OpenAI / Anthropic tool-call adapter
-- LangChain / Mastra / Vercel AI SDK adapters
-- Stronger secret scanner (entropy + pattern based)
-- `agent-vcr sanitize` command
-- Visual run diff
-- Custom matcher hooks (`config.matcher.http(req) => key`)
 
 ## License
 
