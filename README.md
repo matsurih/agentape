@@ -189,7 +189,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-The workflow needs an `NPM_TOKEN` repository secret (an npm automation token with publish rights for `agentape`).
+The workflow uses [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) — no `NPM_TOKEN` is required. The `agentape` package on npmjs.com must have this repository + workflow registered as a Trusted Publisher (Settings → Trusted Publisher on the package page).
 
 ## License
 
