@@ -2,7 +2,7 @@ import type { Cassette } from "../cassette/schema.js";
 
 export function renderMarkdown(c: Cassette): string {
   const lines: string[] = [];
-  lines.push(`# Agent VCR Report — ${c.name}`);
+  lines.push(`# agentape report — ${c.name}`);
   lines.push("");
   lines.push(`- Created: ${c.createdAt}`);
   lines.push(`- Interactions: ${c.interactions.length}`);

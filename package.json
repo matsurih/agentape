@@ -1,13 +1,21 @@
 {
-  "name": "agent-vcr",
+  "name": "agentape",
   "version": "0.1.0",
   "description": "Record and replay AI agent tool calls, MCP calls, and HTTP requests. Test agents without spending tokens or hitting real APIs.",
   "type": "module",
   "license": "MIT",
   "bin": {
-    "agent-vcr": "dist/cli.js"
+    "agentape": "dist/cli.js"
   },
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
     "README.md",
@@ -46,10 +54,19 @@
     "record",
     "replay",
     "fixtures",
-    "cassette"
+    "cassette",
+    "llm",
+    "http"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/matsurih/agent-vcr.git"
+    "url": "git+https://github.com/matsurih/agentape.git"
+  },
+  "homepage": "https://github.com/matsurih/agentape#readme",
+  "bugs": {
+    "url": "https://github.com/matsurih/agentape/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

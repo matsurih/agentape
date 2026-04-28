@@ -2,10 +2,10 @@
  * MCP stdio proxy.
  *
  * Used as the MCP server command in place of the real one when running
- * under agent-vcr. Talks JSON-RPC 2.0 over stdio to the MCP client (parent),
+ * under agentape. Talks JSON-RPC 2.0 over stdio to the MCP client (parent),
  * and either:
  *   - record mode: spawns the real MCP server as a child, pipes traffic both
- *     ways, and reports request/response pairs to the agent-vcr coordinator;
+ *     ways, and reports request/response pairs to the agentape coordinator;
  *   - replay mode: does not spawn anything, answers requests from the
  *     coordinator's cassette.
  *
@@ -15,8 +15,8 @@
 
 import { spawn } from "node:child_process";
 
-const COORDINATOR_URL = process.env.AGENT_VCR_COORDINATOR;
-const MODE = process.env.AGENT_VCR_MODE as "record" | "replay" | undefined;
+const COORDINATOR_URL = process.env.AGENTAPE_COORDINATOR;
+const MODE = process.env.AGENTAPE_MODE as "record" | "replay" | undefined;
 
 interface JsonRpcMessage {
   jsonrpc?: string;
@@ -39,7 +39,7 @@ const pending = new Map<string | number, PendingRequest>();
 const inflight = new Set<Promise<unknown>>();
 
 async function postJson(path: string, payload: unknown): Promise<any> {
-  if (!COORDINATOR_URL) throw new Error("AGENT_VCR_COORDINATOR not set");
+  if (!COORDINATOR_URL) throw new Error("AGENTAPE_COORDINATOR not set");
   const p = (async () => {
     const res = await fetch(COORDINATOR_URL + path, {
       method: "POST",
@@ -107,7 +107,7 @@ async function handleClientRequestReplay(msg: JsonRpcMessage): Promise<void> {
       writeToClient({
         jsonrpc: "2.0",
         id: msg.id,
-        error: { code: -32000, message: `[agent-vcr] No matching cassette for tool ${tool}` },
+        error: { code: -32000, message: `[agentape] No matching cassette for tool ${tool}` },
       });
     }
     return;
@@ -127,7 +127,7 @@ async function handleClientRequestReplay(msg: JsonRpcMessage): Promise<void> {
     writeToClient({
       jsonrpc: "2.0",
       id: msg.id,
-      error: { code: -32601, message: `[agent-vcr] No matching cassette for ${msg.method}` },
+      error: { code: -32601, message: `[agentape] No matching cassette for ${msg.method}` },
     });
   }
 }
@@ -161,7 +161,7 @@ function parseTargetCommand(): string[] {
   if (sep === -1) {
     if (args.length > 0) return args;
     throw new Error(
-      "[agent-vcr mcp-proxy] target server command not specified. Usage: agent-vcr mcp-proxy -- <cmd> [args...]",
+      "[agentape mcp-proxy] target server command not specified. Usage: agentape mcp-proxy -- <cmd> [args...]",
     );
   }
   return args.slice(sep + 1);
@@ -180,7 +180,7 @@ async function runReplay(): Promise<void> {
         writeToClient({
           jsonrpc: "2.0",
           id: msg.id,
-          error: { code: -32000, message: `[agent-vcr] ${(err as Error).message}` },
+          error: { code: -32000, message: `[agentape] ${(err as Error).message}` },
         });
       }
     });
@@ -191,7 +191,7 @@ async function runReplay(): Promise<void> {
 
 async function runRecord(targetCmd: string[]): Promise<void> {
   if (targetCmd.length === 0) {
-    process.stderr.write("[agent-vcr mcp-proxy] target server command required in record mode\n");
+    process.stderr.write("[agentape mcp-proxy] target server command required in record mode\n");
     process.exit(2);
   }
   const child = spawn(targetCmd[0], targetCmd.slice(1), {
@@ -269,7 +269,7 @@ async function runRecord(targetCmd: string[]): Promise<void> {
 async function main(): Promise<void> {
   if (!COORDINATOR_URL || !MODE) {
     process.stderr.write(
-      "[agent-vcr mcp-proxy] AGENT_VCR_COORDINATOR / AGENT_VCR_MODE not set. Run via agent-vcr record/replay.\n",
+      "[agentape mcp-proxy] AGENTAPE_COORDINATOR / AGENTAPE_MODE not set. Run via agentape record/replay.\n",
     );
     process.exit(2);
   }
@@ -282,6 +282,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  process.stderr.write(`[agent-vcr mcp-proxy] fatal: ${(err as Error).message}\n`);
+  process.stderr.write(`[agentape mcp-proxy] fatal: ${(err as Error).message}\n`);
   process.exit(1);
 });

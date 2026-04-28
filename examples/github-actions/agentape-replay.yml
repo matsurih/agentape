@@ -19,12 +19,12 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
 
-      # Run your agent test suite under agent-vcr replay so no real network
+      # Run your agent test suite under agentape replay so no real network
       # call leaves the runner. Replace the command with however you invoke
       # your agent test entry point.
       - name: Replay agent test
         run: |
-          npx agent-vcr replay \
+          npx agentape replay \
             --cassette cassettes/agent.json \
             -- npm run test:agent
 
@@ -32,12 +32,12 @@ jobs:
       - name: Render report
         if: always()
         run: |
-          npx agent-vcr report \
+          npx agentape report \
             --cassette cassettes/agent.json \
             --format html \
             --output report.html
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: agent-vcr-report
+          name: agentape-report
           path: report.html

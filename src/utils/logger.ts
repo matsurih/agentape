@@ -18,16 +18,16 @@ function paint(color: keyof typeof codes, s: string): string {
 
 export const logger = {
   info(msg: string) {
-    process.stderr.write(`${paint("cyan", "[agent-vcr]")} ${msg}\n`);
+    process.stderr.write(`${paint("cyan", "[agentape]")} ${msg}\n`);
   },
   ok(msg: string) {
-    process.stderr.write(`${paint("green", "[agent-vcr]")} ${msg}\n`);
+    process.stderr.write(`${paint("green", "[agentape]")} ${msg}\n`);
   },
   warn(msg: string) {
-    process.stderr.write(`${paint("yellow", "[agent-vcr]")} ${msg}\n`);
+    process.stderr.write(`${paint("yellow", "[agentape]")} ${msg}\n`);
   },
   error(msg: string) {
-    process.stderr.write(`${paint("red", "[agent-vcr]")} ${msg}\n`);
+    process.stderr.write(`${paint("red", "[agentape]")} ${msg}\n`);
   },
   dim(msg: string) {
     process.stderr.write(`${paint("dim", msg)}\n`);

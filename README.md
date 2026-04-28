@@ -1,9 +1,10 @@
-# Agent VCR / Mock MCP
+# agentape
 
 > Record and replay your AI agent's tool calls. Test agents without spending tokens or hitting real APIs.
 
-Agent VCR is the [VCR](https://github.com/vcr/vcr) / [nock](https://github.com/nock/nock) / [msw](https://mswjs.io/) pattern, applied to AI agents:
+agentape is the [VCR](https://github.com/vcr/vcr) / [nock](https://github.com/nock/nock) / [msw](https://mswjs.io/) pattern, applied to AI agents — at the **process boundary**, not the SDK:
 
+- Wrap your existing test command (`agentape record npm test`) — no library integration, no SDK monkey-patching.
 - It captures **HTTP** requests, **MCP tool calls**, and **MCP JSON-RPC** traffic the first time you run your agent test suite.
 - Every subsequent run replays the captured cassette — no real network, no real Gmail, no real Slack, no LLM tokens.
 - Cassettes are plain JSON, easy to read in code review.
@@ -19,34 +20,34 @@ AI agent development is painful in CI:
 - Agent tests are flaky.
 - MCP server behavior is hard to pin down.
 
-Agent VCR solves this with one verb: **record once, replay forever**.
+agentape solves this with one verb: **record once, replay forever**.
 
 ## Quickstart
 
 ```bash
-npm install --save-dev agent-vcr
+npm install --save-dev agentape
 
 # 1. record once — hits the real APIs / MCP servers
-npx agent-vcr record npm test
+npx agentape record npm test
 
 # 2. replay forever — no network, no tokens
-npx agent-vcr replay npm test
+npx agentape replay npm test
 ```
 
 The cassette is written to `cassettes/default.json` (override with `--cassette`).
 
 ## Commands
 
-### `agent-vcr record <command...>`
+### `agentape record <command...>`
 
 Spawns `<command...>` as a child process. Captures every outbound HTTP / MCP call into the cassette. Returns the child's exit code. Sensitive headers and keys are redacted on save.
 
 ```bash
-agent-vcr record --cassette cassettes/gmail-search.json npm test
-agent-vcr record --redact-emails npm run agent:test
+agentape record --cassette cassettes/gmail-search.json npm test
+agentape record --redact-emails npm run agent:test
 ```
 
-### `agent-vcr replay <command...>`
+### `agentape replay <command...>`
 
 Spawns `<command...>` and serves recorded responses. Any unmatched call:
 
@@ -55,38 +56,38 @@ Spawns `<command...>` and serves recorded responses. Any unmatched call:
 - pushes the exit code to non-zero so CI fails loudly
 
 ```bash
-agent-vcr replay --cassette cassettes/gmail-search.json npm test
+agentape replay --cassette cassettes/gmail-search.json npm test
 ```
 
-### `agent-vcr report`
+### `agentape report`
 
 Renders a human-readable report from a cassette:
 
 ```bash
-agent-vcr report --cassette cassettes/gmail-search.json --format markdown
-agent-vcr report --cassette cassettes/gmail-search.json --format html --output report.html
+agentape report --cassette cassettes/gmail-search.json --format markdown
+agentape report --cassette cassettes/gmail-search.json --format html --output report.html
 ```
 
-### `agent-vcr init`
+### `agentape init`
 
 Creates an empty cassette skeleton:
 
 ```bash
-agent-vcr init --cassette cassettes/my-suite.json
+agentape init --cassette cassettes/my-suite.json
 ```
 
-### `agent-vcr mcp-proxy`
+### `agentape mcp-proxy`
 
 Internal subcommand. Used in your MCP client config in place of the real MCP server command. See [MCP setup](#mcp-record--replay).
 
 ## How it works
 
-When you run `agent-vcr record npm test`:
+When you run `agentape record npm test`:
 
-1. agent-vcr starts a localhost coordinator HTTP service.
-2. It spawns your command with two extra environment variables: `AGENT_VCR_COORDINATOR=http://127.0.0.1:<port>` and `AGENT_VCR_MODE=record`.
+1. agentape starts a localhost coordinator HTTP service.
+2. It spawns your command with two extra environment variables: `AGENTAPE_COORDINATOR=http://127.0.0.1:<port>` and `AGENTAPE_MODE=record`.
 3. It also injects a Node.js preload (`NODE_OPTIONS=--require .../http-hook.cjs`) into your child process so any `globalThis.fetch`, `http.request`, or `https.request` is mirrored to the coordinator.
-4. MCP traffic is mirrored via `agent-vcr mcp-proxy` — a stdio JSON-RPC pass-through that you point your agent's MCP server config at.
+4. MCP traffic is mirrored via `agentape mcp-proxy` — a stdio JSON-RPC pass-through that you point your agent's MCP server config at.
 5. When the child exits, the cassette is saved with all interactions, redacted.
 
 In replay mode the coordinator serves stored responses and the child process never reaches the network.
@@ -132,7 +133,7 @@ In replay mode the coordinator serves stored responses and the child process nev
 
 ## Matching
 
-By default Agent VCR uses **deterministic matching**:
+By default agentape uses **deterministic matching**:
 
 - **HTTP**: `METHOD` + normalized URL (sorted query string, no fragment) + `sha256(body)` hash.
 - **MCP tool call**: tool name + `sha256(deeply-sorted input JSON)` hash.
@@ -142,13 +143,13 @@ Headers are not part of the match key by default — auth headers vary across en
 
 ## MCP record / replay
 
-Add `agent-vcr mcp-proxy` in your MCP client config in place of the raw server command:
+Add `agentape mcp-proxy` in your MCP client config in place of the raw server command:
 
 ```jsonc
 {
   "mcpServers": {
     "my-server": {
-      "command": "agent-vcr",
+      "command": "agentape",
       "args": ["mcp-proxy", "--", "node", "path/to/your/mcp-server.js"]
     }
   }
@@ -161,7 +162,7 @@ In **replay** mode the proxy ignores the wrapped command entirely and answers JS
 
 ## GitHub Actions
 
-[`examples/github-actions/agent-vcr-replay.yml`](./examples/github-actions/agent-vcr-replay.yml) shows a workflow that runs your agent test suite under `agent-vcr replay` so no real API call leaves the runner. It also renders an HTML report and uploads it as an artifact.
+[`examples/github-actions/agentape-replay.yml`](./examples/github-actions/agentape-replay.yml) shows a workflow that runs your agent test suite under `agentape replay` so no real API call leaves the runner. It also renders an HTML report and uploads it as an artifact.
 
 ## Security & redaction
 
@@ -175,7 +176,7 @@ Cassettes are committed to your repo, so we redact aggressively on save:
 
 Redactions appear as the literal string `[REDACTED]`.
 
-> Even with redaction, **always review your cassette before committing it**. Agent VCR can't tell when a payload contains a customer's PII or a leaked secret in a non-standard field name.
+> Even with redaction, **always review your cassette before committing it**. agentape can't tell when a payload contains a customer's PII or a leaked secret in a non-standard field name.
 
 ## License
 
