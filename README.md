@@ -178,6 +178,19 @@ Redactions appear as the literal string `[REDACTED]`.
 
 > Even with redaction, **always review your cassette before committing it**. agentape can't tell when a payload contains a customer's PII or a leaked secret in a non-standard field name.
 
+## Releasing
+
+Publishing to npm is automated via GitHub Actions. Tagging a commit on `main` with `vX.Y.Z` triggers `.github/workflows/publish.yml`, which runs lint / build / tests, verifies the tag matches `package.json` version, and publishes with [npm provenance](https://docs.npmjs.com/generating-provenance-statements).
+
+```bash
+# from a clean main, with the version in package.json already bumped
+git checkout main && git pull
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The workflow needs an `NPM_TOKEN` repository secret (an npm automation token with publish rights for `agentape`).
+
 ## License
 
 MIT
