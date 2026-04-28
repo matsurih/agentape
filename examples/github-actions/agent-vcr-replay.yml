@@ -1,0 +1,43 @@
+# Example workflow: replay a recorded cassette in CI without hitting any
+# real APIs. Drop this into .github/workflows/ and adjust paths.
+
+name: Agent tests (replay)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build --if-present
+
+      # Run your agent test suite under agent-vcr replay so no real network
+      # call leaves the runner.
+      - name: Replay agent test
+        run: |
+          npx agent-vcr replay \
+            --cassette cassettes/fake-saas.json \
+            -- node examples/mcp-fake-saas/agent.mjs \
+               -- npx agent-vcr mcp-proxy -- node fake-saas/src/server.js
+
+      # Optional: render a human-readable report and attach it as an artifact.
+      - name: Render report
+        if: always()
+        run: |
+          npx agent-vcr report \
+            --cassette cassettes/fake-saas.json \
+            --format html \
+            --output report.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-vcr-report
+          path: report.html

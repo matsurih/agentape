@@ -1,0 +1,10 @@
+{
+  "name": "Acme Demo Inc.",
+  "domain": "acmedemo.example",
+  "employees": [
+    { "id": "u1", "name": "Alice Yamada", "role": "Founder", "email": "alice@acmedemo.example" },
+    { "id": "u2", "name": "Ben Tanaka", "role": "Sales Lead", "email": "ben@acmedemo.example" },
+    { "id": "u3", "name": "Chika Suzuki", "role": "Engineer", "email": "chika@acmedemo.example" },
+    { "id": "u4", "name": "Daisuke Mori", "role": "CS Manager", "email": "daisuke@acmedemo.example" }
+  ]
+}
