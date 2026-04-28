@@ -65,6 +65,8 @@ console.log("echo:", JSON.stringify(a));
 const b = await rpc("tools/call", { name: "double", arguments: { n: 21 } });
 console.log("double:", JSON.stringify(b));
 
+// Close stdin and wait for the proxy to exit on its own. Killing it here
+// would race the proxy's coordinator POSTs and lose interactions from the
+// cassette.
 server.stdin.end();
-server.kill();
-process.exit(0);
+server.on("exit", (code) => process.exit(code ?? 0));
