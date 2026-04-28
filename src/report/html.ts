@@ -6,7 +6,7 @@ export function renderHtml(c: Cassette): string {
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Agent VCR — ${escapeHtml(c.name)}</title>
+<title>agentape — ${escapeHtml(c.name)}</title>
 <style>
   body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 980px; margin: 2em auto; padding: 0 1em; color: #1a1a1a; }
   h1 { border-bottom: 2px solid #ddd; padding-bottom: .25em; }
@@ -19,7 +19,7 @@ export function renderHtml(c: Cassette): string {
 </style>
 </head>
 <body>
-<h1>Agent VCR — ${escapeHtml(c.name)}</h1>
+<h1>agentape — ${escapeHtml(c.name)}</h1>
 <p class="meta">
   Created: ${escapeHtml(c.createdAt)}<br />
   Interactions: ${c.interactions.length}

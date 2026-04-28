@@ -26,8 +26,8 @@ export async function runReplay(command: string[], opts: ReplayOptions): Promise
   });
 
   const env: NodeJS.ProcessEnv = {
-    AGENT_VCR_COORDINATOR: coord.baseUrl,
-    AGENT_VCR_MODE: "replay",
+    AGENTAPE_COORDINATOR: coord.baseUrl,
+    AGENTAPE_MODE: "replay",
     NODE_OPTIONS: appendNodeOption(process.env.NODE_OPTIONS, `--require ${hookPath()}`),
   };
 

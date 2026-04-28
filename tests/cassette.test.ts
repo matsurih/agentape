@@ -6,7 +6,7 @@ import { loadCassette, loadOrCreateCassette, saveCassette } from "../src/cassett
 
 let dir: string;
 beforeAll(async () => {
-  dir = await mkdtemp(join(tmpdir(), "agent-vcr-test-"));
+  dir = await mkdtemp(join(tmpdir(), "agentape-test-"));
 });
 afterAll(async () => {
   await rm(dir, { recursive: true, force: true });

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Test-only fixture: tiny JSON-RPC client that drives the echo MCP server
- * through agent-vcr's mcp-proxy. Used by the e2e test.
+ * through agentape's mcp-proxy. Used by the e2e test.
  */
 
 import { spawn } from "node:child_process";

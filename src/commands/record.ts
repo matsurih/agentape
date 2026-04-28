@@ -30,8 +30,8 @@ export async function runRecord(command: string[], opts: RecordOptions): Promise
   });
 
   const env: NodeJS.ProcessEnv = {
-    AGENT_VCR_COORDINATOR: coord.baseUrl,
-    AGENT_VCR_MODE: "record",
+    AGENTAPE_COORDINATOR: coord.baseUrl,
+    AGENTAPE_MODE: "record",
     NODE_OPTIONS: appendNodeOption(process.env.NODE_OPTIONS, `--require ${hookPath()}`),
   };
 

@@ -2,8 +2,8 @@
 
 ```bash
 # record once
-agent-vcr record --cassette cassettes/basic-http.json -- node examples/basic-http/agent.mjs
+agentape record --cassette cassettes/basic-http.json -- node examples/basic-http/agent.mjs
 
 # replay (no network)
-agent-vcr replay --cassette cassettes/basic-http.json -- node examples/basic-http/agent.mjs
+agentape replay --cassette cassettes/basic-http.json -- node examples/basic-http/agent.mjs
 ```

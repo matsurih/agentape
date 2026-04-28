@@ -20,7 +20,7 @@ async function main(): Promise<void> {
 
   const program = new Command();
   program
-    .name("agent-vcr")
+    .name("agentape")
     .description("Record and replay AI agent tool calls, MCP calls, and HTTP requests.")
     .version("0.1.0");
 

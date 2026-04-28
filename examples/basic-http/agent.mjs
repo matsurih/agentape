@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Trivial HTTP "agent": fires a couple of fetch() calls. Run under
- * `agent-vcr record/replay` to capture and replay them.
+ * `agentape record/replay` to capture and replay them.
  */
 
 const base = process.env.BASIC_HTTP_BASE ?? "https://jsonplaceholder.typicode.com";

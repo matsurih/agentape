@@ -1,8 +1,8 @@
 /**
- * agent-vcr HTTP intercept hook (CommonJS, preloaded via NODE_OPTIONS=--require).
+ * agentape HTTP intercept hook (CommonJS, preloaded via NODE_OPTIONS=--require).
  *
  * Monkey-patches globalThis.fetch and node:http/https request() so that every
- * outbound HTTP(S) call is mirrored to the agent-vcr coordinator running on
+ * outbound HTTP(S) call is mirrored to the agentape coordinator running on
  * 127.0.0.1. In record mode the real call is performed and the result is
  * reported. In replay mode the cassette response is returned and the real
  * network is never touched.
@@ -17,8 +17,8 @@ const https = require("node:https");
 const { Readable } = require("node:stream");
 const { EventEmitter } = require("node:events");
 
-const COORDINATOR_URL = process.env.AGENT_VCR_COORDINATOR;
-const MODE = process.env.AGENT_VCR_MODE; // "record" | "replay"
+const COORDINATOR_URL = process.env.AGENTAPE_COORDINATOR;
+const MODE = process.env.AGENTAPE_MODE; // "record" | "replay"
 
 if (!COORDINATOR_URL || !MODE) {
   module.exports = {};
@@ -47,7 +47,7 @@ function isCoordinatorUrl(urlStr) {
 
 async function postJson(path, payload) {
   const f = originalFetch;
-  if (!f) throw new Error("[agent-vcr] global fetch unavailable; Node 18+ required");
+  if (!f) throw new Error("[agentape] global fetch unavailable; Node 18+ required");
   const res = await f(COORDINATOR_URL + path, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -79,7 +79,7 @@ if (originalFetch) {
         request: { method, url, headers, body: reqBody },
       });
       if (!result.matched) {
-        throw new Error(`[agent-vcr] No matching cassette for ${method} ${url}`);
+        throw new Error(`[agentape] No matching cassette for ${method} ${url}`);
       }
       return buildFetchResponse(result.response);
     }
@@ -249,7 +249,7 @@ function makeReplayClientRequest(opts) {
         if (!result.matched) {
           fakeReq.emit(
             "error",
-            new Error(`[agent-vcr] No matching cassette for ${opts.method} ${opts.url}`)
+            new Error(`[agentape] No matching cassette for ${opts.method} ${opts.url}`)
           );
           return;
         }
