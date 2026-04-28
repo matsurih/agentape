@@ -20,6 +20,13 @@
     "lineWidth": 100
   },
   "files": {
-    "ignore": ["dist", "node_modules", "cassettes"]
+    "ignore": [
+      "dist",
+      "node_modules",
+      "cassettes",
+      "**/*.cjs",
+      "fake-saas/src/server.js",
+      "examples/**"
+    ]
   }
 }

@@ -30,9 +30,7 @@ describe("sortObjectDeep / stableStringify", () => {
 
 describe("normalizeUrl", () => {
   it("sorts query params", () => {
-    expect(normalizeUrl("https://x.test/p?b=2&a=1")).toBe(
-      "https://x.test/p?a=1&b=2"
-    );
+    expect(normalizeUrl("https://x.test/p?b=2&a=1")).toBe("https://x.test/p?a=1&b=2");
   });
 
   it("strips trailing slashes from path (but not root)", () => {
@@ -47,14 +45,24 @@ describe("normalizeUrl", () => {
 
 describe("matchKey functions", () => {
   it("HTTP match key is uppercase method + normalized URL + body hash", () => {
-    const k1 = httpMatchKey({ method: "get", url: "https://x.test/p?b=2&a=1", headers: {}, body: null });
-    const k2 = httpMatchKey({ method: "GET", url: "https://x.test/p?a=1&b=2", headers: {}, body: null });
+    const k1 = httpMatchKey({
+      method: "get",
+      url: "https://x.test/p?b=2&a=1",
+      headers: {},
+      body: null,
+    });
+    const k2 = httpMatchKey({
+      method: "GET",
+      url: "https://x.test/p?a=1&b=2",
+      headers: {},
+      body: null,
+    });
     expect(k1).toBe(k2);
   });
 
   it("MCP match key is stable across input key order", () => {
     expect(mcpMatchKey("gmail.search", { q: "x", limit: 10 })).toBe(
-      mcpMatchKey("gmail.search", { limit: 10, q: "x" })
+      mcpMatchKey("gmail.search", { limit: 10, q: "x" }),
     );
   });
 

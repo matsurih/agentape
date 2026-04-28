@@ -9,7 +9,7 @@ describe("redactHeaders", () => {
         Cookie: "session=1",
         "X-API-KEY": "k",
         accept: "application/json",
-      })
+      }),
     ).toEqual({
       Authorization: REDACTED,
       Cookie: REDACTED,

@@ -1,5 +1,6 @@
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
+import { type IncomingMessage, type Server, type ServerResponse, createServer } from "node:http";
 import type { AddressInfo } from "node:net";
+import { type UnmatchedCall, describeUnmatched } from "../cassette/diff.js";
 import {
   type MatchIndex,
   buildMatchIndex,
@@ -17,7 +18,6 @@ import type {
   McpRpcInteraction,
   McpToolInteraction,
 } from "../cassette/schema.js";
-import { describeUnmatched, type UnmatchedCall } from "../cassette/diff.js";
 import { logger } from "../utils/logger.js";
 
 export type Mode = "record" | "replay";
@@ -103,7 +103,7 @@ async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse,
   opts: CoordinatorOptions,
-  state: InternalState
+  state: InternalState,
 ): Promise<void> {
   if (!req.url || !req.method) {
     res.statusCode = 400;
@@ -192,11 +192,7 @@ async function readJson(req: IncomingMessage): Promise<any> {
   }
 }
 
-function handleRecordHttp(
-  body: any,
-  opts: CoordinatorOptions,
-  state: InternalState
-): void {
+function handleRecordHttp(body: any, opts: CoordinatorOptions, state: InternalState): void {
   const request = body?.request as HttpRequest | undefined;
   const response = body?.response as HttpResponse | undefined;
   const durationMs = body?.durationMs as number | undefined;
@@ -228,11 +224,7 @@ function handleRecordHttp(
   state.cassette.interactions.push(interaction);
 }
 
-function handleRecordMcp(
-  body: any,
-  opts: CoordinatorOptions,
-  state: InternalState
-): void {
+function handleRecordMcp(body: any, opts: CoordinatorOptions, state: InternalState): void {
   const tool = body?.tool as string | undefined;
   if (!tool) return;
   const id = nextId(state.cassette);
@@ -251,9 +243,10 @@ function handleRecordMcp(
   state.cassette.interactions.push(interaction);
 }
 
-function handleReplayHttp(body: any, state: InternalState):
-  | { matched: true; response: HttpResponse }
-  | { matched: false; error: string } {
+function handleReplayHttp(
+  body: any,
+  state: InternalState,
+): { matched: true; response: HttpResponse } | { matched: false; error: string } {
   const request = body?.request as HttpRequest | undefined;
   if (!request) return { matched: false, error: "Missing request" };
   const found = findHttpMatch(state.index, request);
@@ -273,10 +266,8 @@ function handleReplayHttp(body: any, state: InternalState):
 
 function handleReplayMcp(
   body: any,
-  state: InternalState
-):
-  | { matched: true; output: unknown; isError?: boolean }
-  | { matched: false; error: string } {
+  state: InternalState,
+): { matched: true; output: unknown; isError?: boolean } | { matched: false; error: string } {
   const tool = body?.tool as string | undefined;
   if (!tool) return { matched: false, error: "Missing tool" };
   const input = body?.input ?? null;
@@ -316,10 +307,8 @@ function handleRecordRpc(body: any, opts: CoordinatorOptions, state: InternalSta
 
 function handleReplayRpc(
   body: any,
-  state: InternalState
-):
-  | { matched: true; result?: unknown; error?: unknown }
-  | { matched: false; error: string } {
+  state: InternalState,
+): { matched: true; result?: unknown; error?: unknown } | { matched: false; error: string } {
   const rpcMethod = body?.rpcMethod as string | undefined;
   if (!rpcMethod) return { matched: false, error: "Missing rpcMethod" };
   const params = body?.params ?? null;

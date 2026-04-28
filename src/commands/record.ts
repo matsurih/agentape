@@ -17,10 +17,7 @@ function hookPath(): string {
   return resolve(here, "../proxy/http-hook.cjs");
 }
 
-export async function runRecord(
-  command: string[],
-  opts: RecordOptions
-): Promise<number> {
+export async function runRecord(command: string[], opts: RecordOptions): Promise<number> {
   const cassettePath = resolve(opts.cassette);
   const name = opts.name ?? cassetteNameFromPath(cassettePath);
   const cassette = await loadOrCreateCassette(cassettePath, name);
@@ -50,9 +47,7 @@ export async function runRecord(
     finalCassette.createdAt = new Date().toISOString();
     await saveCassette(cassettePath, finalCassette);
     await coord.shutdown();
-    logger.ok(
-      `recorded ${finalCassette.interactions.length} interaction(s) → ${cassettePath}`
-    );
+    logger.ok(`recorded ${finalCassette.interactions.length} interaction(s) → ${cassettePath}`);
   }
   return exitCode;
 }

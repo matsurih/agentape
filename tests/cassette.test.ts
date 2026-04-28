@@ -2,11 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import {
-  loadCassette,
-  loadOrCreateCassette,
-  saveCassette,
-} from "../src/cassette/cassette.js";
+import { loadCassette, loadOrCreateCassette, saveCassette } from "../src/cassette/cassette.js";
 
 let dir: string;
 beforeAll(async () => {

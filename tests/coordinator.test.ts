@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { startCoordinator } from "../src/proxy/coordinator.js";
 import { emptyCassette } from "../src/cassette/schema.js";
+import { startCoordinator } from "../src/proxy/coordinator.js";
 
 describe("coordinator", () => {
   it("records HTTP interactions and serves them in replay", async () => {

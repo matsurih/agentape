@@ -34,7 +34,7 @@ export function describeUnmatched(call: UnmatchedCall, recorded: Interaction[]):
       .filter(
         (i) =>
           i.request.method.toUpperCase() === call.method.toUpperCase() ||
-          sameOrigin(i.request.url, call.url)
+          sameOrigin(i.request.url, call.url),
       );
     if (candidates.length > 0) {
       lines.push("  Closest recorded HTTP interactions:");
@@ -46,9 +46,7 @@ export function describeUnmatched(call: UnmatchedCall, recorded: Interaction[]):
     lines.push(`✗ Unmatched MCP tool call: ${call.tool}`);
     lines.push(`  input: ${truncate(stableStringify(call.input), 200)}`);
     const candidates = recorded
-      .filter(
-        (i): i is Extract<Interaction, { type: "mcp.tool" }> => i.type === "mcp.tool"
-      )
+      .filter((i): i is Extract<Interaction, { type: "mcp.tool" }> => i.type === "mcp.tool")
       .filter((i) => i.tool === call.tool);
     if (candidates.length > 0) {
       lines.push("  Closest recorded MCP interactions:");
@@ -66,7 +64,7 @@ export function describeUnmatched(call: UnmatchedCall, recorded: Interaction[]):
       lines.push("  Closest recorded RPC interactions:");
       for (const c of candidates.slice(0, 3)) {
         lines.push(
-          `    - [${c.id}] ${c.rpcMethod} params=${truncate(stableStringify(c.params), 80)}`
+          `    - [${c.id}] ${c.rpcMethod} params=${truncate(stableStringify(c.params), 80)}`,
         );
       }
     }

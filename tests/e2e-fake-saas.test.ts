@@ -41,18 +41,8 @@ describe.skipIf(!haveBuild)("e2e fake-saas record/replay", () => {
 
     // RECORD: agent → mcp-proxy (record) → real fake-saas
     const recCode = await runRecord(
-      [
-        "node",
-        agentScript,
-        "--",
-        "node",
-        cliDist,
-        "mcp-proxy",
-        "--",
-        "node",
-        fakeServer,
-      ],
-      { cassette, name: "fake-saas" }
+      ["node", agentScript, "--", "node", cliDist, "mcp-proxy", "--", "node", fakeServer],
+      { cassette, name: "fake-saas" },
     );
     expect(recCode).toBe(0);
 
@@ -67,17 +57,8 @@ describe.skipIf(!haveBuild)("e2e fake-saas record/replay", () => {
     // REPLAY: agent → mcp-proxy (replay). Real server is replaced with
     // /bin/false; if the proxy ever spawns it the run dies non-zero.
     const repCode = await runReplay(
-      [
-        "node",
-        agentScript,
-        "--",
-        "node",
-        cliDist,
-        "mcp-proxy",
-        "--",
-        "/bin/false",
-      ],
-      { cassette }
+      ["node", agentScript, "--", "node", cliDist, "mcp-proxy", "--", "/bin/false"],
+      { cassette },
     );
     expect(repCode).toBe(0);
   }, 30000);

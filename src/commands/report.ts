@@ -13,8 +13,7 @@ export interface ReportOptions {
 
 export async function runReport(opts: ReportOptions): Promise<number> {
   const cassette = await loadCassette(opts.cassette);
-  const rendered =
-    opts.format === "html" ? renderHtml(cassette) : renderMarkdown(cassette);
+  const rendered = opts.format === "html" ? renderHtml(cassette) : renderMarkdown(cassette);
 
   if (!opts.output) {
     process.stdout.write(rendered);

@@ -12,7 +12,7 @@ export interface RunCommandResult {
 
 export function runCommand(
   argv: string[],
-  opts: RunCommandOptions = {}
+  opts: RunCommandOptions = {},
 ): Promise<RunCommandResult> {
   if (argv.length === 0) {
     return Promise.reject(new Error("No command provided"));

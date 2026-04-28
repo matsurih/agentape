@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { CassetteSchema, type Cassette, emptyCassette } from "./schema.js";
+import { type Cassette, CassetteSchema, emptyCassette } from "./schema.js";
 
 export async function loadCassette(filePath: string): Promise<Cassette> {
   const abs = resolve(filePath);
@@ -13,10 +13,7 @@ export async function loadCassette(filePath: string): Promise<Cassette> {
   return CassetteSchema.parse(parsed);
 }
 
-export async function loadOrCreateCassette(
-  filePath: string,
-  name: string
-): Promise<Cassette> {
+export async function loadOrCreateCassette(filePath: string, name: string): Promise<Cassette> {
   const abs = resolve(filePath);
   if (!existsSync(abs)) return emptyCassette(name);
   const raw = await readFile(abs, "utf8");

@@ -102,7 +102,7 @@ export function findHttpMatch(index: MatchIndex, req: HttpRequest): HttpInteract
 export function findMcpMatch(
   index: MatchIndex,
   tool: string,
-  input: unknown
+  input: unknown,
 ): McpToolInteraction | null {
   const key = mcpMatchKey(tool, input);
   const list = index.byKey.get(key);
@@ -121,7 +121,7 @@ export function findMcpMatch(
 export function findRpcMatch(
   index: MatchIndex,
   rpcMethod: string,
-  params: unknown
+  params: unknown,
 ): McpRpcInteraction | null {
   const key = rpcMatchKey(rpcMethod, params);
   const list = index.byKey.get(key);

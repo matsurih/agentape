@@ -28,9 +28,7 @@ export interface RedactOptions {
   maskEmails?: boolean;
 }
 
-export function redactHeaders(
-  headers: Record<string, string> | undefined
-): Record<string, string> {
+export function redactHeaders(headers: Record<string, string> | undefined): Record<string, string> {
   if (!headers) return {};
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(headers)) {

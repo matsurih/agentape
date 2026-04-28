@@ -35,14 +35,28 @@ interface PendingRequest {
 
 const pending = new Map<string | number, PendingRequest>();
 
+/** In-flight coordinator POSTs we must drain before exiting record mode. */
+const inflight = new Set<Promise<unknown>>();
+
 async function postJson(path: string, payload: unknown): Promise<any> {
   if (!COORDINATOR_URL) throw new Error("AGENT_VCR_COORDINATOR not set");
-  const res = await fetch(COORDINATOR_URL + path, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return res.json();
+  const p = (async () => {
+    const res = await fetch(COORDINATOR_URL + path, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  })();
+  inflight.add(p);
+  p.finally(() => inflight.delete(p));
+  return p;
+}
+
+async function drainInflight(): Promise<void> {
+  while (inflight.size > 0) {
+    await Promise.allSettled([...inflight]);
+  }
 }
 
 function writeToClient(msg: JsonRpcMessage): void {
@@ -147,7 +161,7 @@ function parseTargetCommand(): string[] {
   if (sep === -1) {
     if (args.length > 0) return args;
     throw new Error(
-      "[agent-vcr mcp-proxy] target server command not specified. Usage: agent-vcr mcp-proxy -- <cmd> [args...]"
+      "[agent-vcr mcp-proxy] target server command not specified. Usage: agent-vcr mcp-proxy -- <cmd> [args...]",
     );
   }
   return args.slice(sep + 1);
@@ -193,11 +207,7 @@ async function runRecord(targetCmd: string[]): Promise<void> {
       child.stdin?.write(`${line}\n`);
       return;
     }
-    if (
-      msg.id !== undefined &&
-      msg.id !== null &&
-      typeof msg.method === "string"
-    ) {
+    if (msg.id !== undefined && msg.id !== null && typeof msg.method === "string") {
       pending.set(msg.id, {
         method: msg.method,
         params: msg.params ?? null,
@@ -235,16 +245,31 @@ async function runRecord(targetCmd: string[]): Promise<void> {
 
   process.stdin.on("data", onClientLine);
   child.stdout?.on("data", onServerLine);
-  child.on("exit", (code) => process.exit(code ?? 0));
+  child.on("exit", async (code) => {
+    await drainInflight();
+    process.exit(code ?? 0);
+  });
   process.stdin.on("end", () => {
     child.stdin?.end();
   });
+  // If our parent (the agent) terminates us, still try to flush.
+  for (const sig of ["SIGTERM", "SIGINT", "SIGHUP"] as const) {
+    process.on(sig, async () => {
+      try {
+        child.kill(sig);
+      } catch {
+        // child already gone
+      }
+      await drainInflight();
+      process.exit(0);
+    });
+  }
 }
 
 async function main(): Promise<void> {
   if (!COORDINATOR_URL || !MODE) {
     process.stderr.write(
-      "[agent-vcr mcp-proxy] AGENT_VCR_COORDINATOR / AGENT_VCR_MODE not set. Run via agent-vcr record/replay.\n"
+      "[agent-vcr mcp-proxy] AGENT_VCR_COORDINATOR / AGENT_VCR_MODE not set. Run via agent-vcr record/replay.\n",
     );
     process.exit(2);
   }
